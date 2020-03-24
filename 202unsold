@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+
+import sys
+
+values = []
+valuesX = []
+valuesY = []
+
+
+def calc_formula(a, b, x, y):
+    return ((a - x)*(b - y)/((5 * a - 150)*(5 * b - 150)))
+
+
+def calc_varianz(total, i, value=[]):
+    return ((i + 1) * 10 - total) * ((i + 1) * 10 - total) * value[i]
+
+
+def calc_first(a, b):
+    y = 10
+    calc_value = 0.0
+    margin = 0.0
+    tmp = 0
+    print("\tX=10\tX=20\tX=30\tX=40\tX=50\tY law")
+
+    while(y <= 60):
+        x = 10
+        if (y == 60):
+            print("X law", end='')
+        else:
+            print("Y=%d" % y, end='')
+        while(x <= 50):
+            calc_value = calc_formula(a, b, x, y)
+            margin += calc_value
+            if (y == 60):
+                rows = 0
+                result = 0.0
+                i = tmp
+                while(rows < 5):
+                    result += values[i]
+                    i += 5
+                    rows += 1
+                print("\t%0.3f" % (result), end='')
+                tmp += 1
+                valuesX.append(result)
+            else:
+                values.append(calc_value)
+                print("\t%0.3f" % (calc_value), end='')
+            x += 10
+        if(y == 60):
+            print("\t1.000")
+        else:
+            print("\t%0.3f" % margin)
+            valuesY.append(margin)
+            margin = 0
+        y += 10
+
+
+def calc_z_tab(a, b):
+    z = 20
+    y = 0.0
+    calc_val = 0.0
+    sum = 0.0
+    result = 0.0
+    print("z\t20\t30\t40\t50\t60\t70\t80\t90\t100\t\n", end='')
+    print("p(Z=z)", end='')
+    while(z <= 100):
+        y = 10
+        calc_val = 0.0
+        sum = 0.0
+        while(y <= 60):
+            x = 10
+            while(x <= 50):
+                calc_val = calc_formula(a, b, x, y)
+                if (y < 60 and ((x + y) == z)):
+                    sum += calc_val
+                x += 10
+            y += 10
+        print("\t%0.3f" % (sum), end='')
+        result += sum
+        z += 10
+
+
+def calc_last(a, b):
+    x = 10
+    i = 0
+    result = 0.0
+    result2 = 0.0
+    while(x <= 50):
+        result += valuesX[i] * x
+        result2 += valuesY[i] * x
+        x += 10
+        i += 1
+    i = 0
+    varianzX = 0.0
+    varianzY = 0.0
+    for i in range(5):
+        varianzX += calc_varianz(result, i, valuesX)
+        varianzY += calc_varianz(result2, i, valuesY)
+    print("expected value of X:\t%0.1f" % (result))
+    print("variance of X:\t\t%0.1f" % (varianzX))
+    print("expected value of Y:\t%0.1f" % (result2))
+    print("variance of Y:\t\t%0.1f" % (varianzY))
+    print("expected value of Z:\t%0.1f" % (result + result2))
+    print("variance of Z:\t\t%0.1f" % (varianzX + varianzY))
+
+
+def unsold(a, b):
+    print("--------------------------------------------------------------------------------")
+    calc_first(a, b)
+    print("--------------------------------------------------------------------------------")
+    calc_z_tab(a, b)
+    print("\n--------------------------------------------------------------------------------")
+    calc_last(a, b)
+    print("--------------------------------------------------------------------------------")
+
+
+#def main():
+if (len(sys.argv) != 3):
+    if (len(sys.argv) == 2 and sys.argv[1] == "-h"):
+        print("USAGE\n\t./202unsold a b\n\nDESCRIPTION\n\ta\tconstant computed from the past results\n\tb\tconstant computed from the past results")
+    else:
+        print("An Error has occured! Invalid Argument!")
+    sys.exit(84)
+else:
+    try:
+        a = int(sys.argv[1])
+        b = int(sys.argv[2])
+    except ValueError:
+        print("Values have to be Integer format (Without decimals and no letters)!")
+        sys.exit(84)
+    if (a <= 50):
+        print("First value has to be greater than 50. Given Value \'%i\' is to small." %a)
+        sys.exit(84)
+    if (b <= 50):
+        print("Second value has to be greater than 50. Given Value \'%i\' is to small." %b)
+        sys.exit(84)
+    unsold(a, b)
+    sys.exit(0)
+
+# if __name__ == '__main__':
+#     main()
